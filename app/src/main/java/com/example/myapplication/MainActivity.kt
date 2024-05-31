@@ -3,50 +3,75 @@ package com.example.myapplication
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Firebase
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.database
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var todoAdapter: TodoAdapter
+    private lateinit var MistakeAdapter: MistakeAdapter
     val database = Firebase.database
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val todoItemsrv = findViewById<RecyclerView>(R.id.rvTodoItems)
-        todoAdapter = TodoAdapter(mutableListOf())
 
-        todoItemsrv.adapter = todoAdapter
-        todoItemsrv.layoutManager = LinearLayoutManager(this)
+        val mistakeItemsrv = findViewById<RecyclerView>(R.id.rvMistakeItems)
+        MistakeAdapter = MistakeAdapter(mutableListOf())
+
+        mistakeItemsrv.adapter = MistakeAdapter
+        mistakeItemsrv.layoutManager = LinearLayoutManager(this)
         // Write a message to the database
 
 
 
-        val addTodobtn = findViewById<Button>(R.id.btnAddTodo)
-        val deleteTodobtn = findViewById<Button>(R.id.btnDeleteDoneTodo)
-        val todoTitleet = findViewById<EditText>(R.id.etTodoTitle)
-        addTodobtn.setOnClickListener{
-            val myRef = database.getReference("message")
+        val addMistakebtn = findViewById<Button>(R.id.btnAddMistake)
+        val mistakeTitleet = findViewById<EditText>(R.id.etMistakeTitle)
+        val myRef = database.getReference("mistakes")
 
-            myRef.setValue("Hello, World! 1")
-            val todoTitle = todoTitleet.text.toString()
-            if(todoTitle.isNotEmpty()){
-                val todo = Todo(todoTitle)
-                todoAdapter.addTodo(todo)
-                todoTitleet.text.clear()
+        addMistakebtn.setOnClickListener{
+//            val myRef = database.getReference("message")
+
+
+            val mistakeTitle = mistakeTitleet.text.toString()
+            if(mistakeTitle.isNotEmpty()){
+                val mistake = Mistake(mistakeTitle)
+//                MistakeAdapter.addMistake(mistake)
+                mistakeTitleet.text.clear()
+
+                myRef.push().setValue(mistakeTitle)
+//                myRef.push(mistake)
             }
         }
+        myRef.addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                val mistakeTitle = snapshot.getValue(String::class.java) ?: return
+                val mistake = Mistake(mistakeTitle)
+                MistakeAdapter.addMistake(mistake)
+            }
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                // Handle changes if necessary
+            }
 
-        deleteTodobtn.setOnClickListener {
-            todoAdapter.deleteDoneTodos()
-        }
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                // Handle removal if necessary
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+                // Handle moves if necessary
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle errors if necessary
+            }
+
+        })
+
+
 
     }
 }
