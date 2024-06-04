@@ -1,8 +1,10 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +29,11 @@ class MainActivity : AppCompatActivity() {
         mistakeItemsrv.layoutManager = LinearLayoutManager(this)
         // Write a message to the database
 
-
+        val userImagebtn = findViewById<ImageButton>(R.id.imageButton)
+        userImagebtn.setOnClickListener{
+            val intent = Intent(this, UserActivity::class.java)
+            startActivity(intent)
+        }
 
         val addMistakebtn = findViewById<Button>(R.id.btnAddMistake)
         val mistakeTitleet = findViewById<EditText>(R.id.etMistakeTitle)
